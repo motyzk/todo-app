@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo App</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 16px;
+    }
+
+    .container {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #1a1a2e;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    #todo-input {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #todo-input:focus {
+      border-color: #6c63ff;
+    }
+
+    #add-btn {
+      padding: 10px 18px;
+      font-size: 1rem;
+      background: #6c63ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    #add-btn:hover {
+      background: #574fd6;
+    }
+
+    #todo-list {
+      list-style: none;
+    }
+
+    #todo-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #f8f8fb;
+      margin-bottom: 10px;
+      transition: background 0.15s;
+      gap: 12px;
+    }
+
+    #todo-list li:hover {
+      background: #efefff;
+    }
+
+    .todo-text {
+      flex: 1;
+      font-size: 1rem;
+      color: #333;
+      word-break: break-word;
+    }
+
+    .todo-text.done {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    .complete-btn {
+      background: none;
+      border: 2px solid #6c63ff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: transparent;
+      font-size: 0.75rem;
+    }
+
+    .complete-btn.checked {
+      background: #6c63ff;
+      color: #fff;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #cc3333;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .delete-btn:hover {
+      background: #fde8e8;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #bbb;
+      font-size: 0.95rem;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>My Todos</h1>
+    <div class="input-row">
+      <input
+        type="text"
+        id="todo-input"
+        placeholder="What needs to be done?"
+        maxlength="200"
+        autocomplete="off"
+      />
+      <button id="add-btn">Add</button>
+    </div>
+    <ul id="todo-list"></ul>
+    <p class="empty-msg" id="empty-msg">No todos yet. Add one above!</p>
+  </div>
+
+  <script>
+    const input = document.getElementById('todo-input');
+    const addBtn = document.getElementById('add-btn');
+    const list = document.getElementById('todo-list');
+    const emptyMsg = document.getElementById('empty-msg');
+
+    function updateEmptyMessage() {
+      emptyMsg.style.display = list.children.length === 0 ? 'block' : 'none';
+    }
+
+    function addTodo() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      const li = document.createElement('li');
+
+      const completeBtn = document.createElement('button');
+      completeBtn.className = 'complete-btn';
+      completeBtn.title = 'Mark complete';
+      completeBtn.textContent = '✓';
+
+      const span = document.createElement('span');
+      span.className = 'todo-text';
+      span.textContent = text;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.title = 'Delete';
+      deleteBtn.textContent = '✕';
+
+      completeBtn.addEventListener('click', () => {
+        const done = span.classList.toggle('done');
+        completeBtn.classList.toggle('checked', done);
+        completeBtn.title = done ? 'Mark incomplete' : 'Mark complete';
+      });
+
+      deleteBtn.addEventListener('click', () => {
+        li.remove();
+        updateEmptyMessage();
+      });
+
+      li.appendChild(completeBtn);
+      li.appendChild(span);
+      li.appendChild(deleteBtn);
+      list.appendChild(li);
+
+      input.value = '';
+      input.focus();
+      updateEmptyMessage();
+    }
+
+    addBtn.addEventListener('click', addTodo);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addTodo();
+    });
+
+    updateEmptyMessage();
+  </script>
+</body>
+</html>
