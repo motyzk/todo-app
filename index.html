@@ -11,30 +11,90 @@
       padding: 0;
     }
 
+    :root {
+      --bg: #f0f2f5;
+      --container-bg: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --heading: #1a1a2e;
+      --input-border: #e0e0e0;
+      --item-bg: #f8f8fb;
+      --item-hover-bg: #efefff;
+      --text: #333;
+      --text-done: #aaa;
+      --delete-hover-bg: #fde8e8;
+      --empty-color: #bbb;
+      --toggle-bg: #e0e0e0;
+      --toggle-color: #555;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1a1a2e;
+      --container-bg: #16213e;
+      --shadow: rgba(0, 0, 0, 0.4);
+      --heading: #e0e0f0;
+      --input-border: #3a3a5c;
+      --item-bg: #0f3460;
+      --item-hover-bg: #1a3a6e;
+      --text: #d0d0e8;
+      --text-done: #666;
+      --delete-hover-bg: #4a1a1a;
+      --empty-color: #555;
+      --toggle-bg: #3a3a5c;
+      --toggle-color: #e0e0f0;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f0f2f5;
+      background: var(--bg);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       padding: 60px 16px;
+      transition: background 0.3s;
     }
 
     .container {
-      background: #ffffff;
+      background: var(--container-bg);
       border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 20px var(--shadow);
       padding: 32px;
       width: 100%;
       max-width: 480px;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      position: relative;
     }
 
     h1 {
       font-size: 1.8rem;
-      color: #1a1a2e;
-      margin-bottom: 24px;
+      color: var(--heading);
       text-align: center;
+    }
+
+    #theme-toggle {
+      position: absolute;
+      right: 0;
+      background: var(--toggle-bg);
+      color: var(--toggle-color);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      line-height: 1;
+    }
+
+    #theme-toggle:hover {
+      background: #6c63ff;
+      color: #fff;
     }
 
     .input-row {
@@ -47,10 +107,12 @@
       flex: 1;
       padding: 10px 14px;
       font-size: 1rem;
-      border: 2px solid #e0e0e0;
+      border: 2px solid var(--input-border);
       border-radius: 8px;
       outline: none;
-      transition: border-color 0.2s;
+      background: var(--container-bg);
+      color: var(--text);
+      transition: border-color 0.2s, background 0.3s, color 0.3s;
     }
 
     #todo-input:focus {
@@ -83,26 +145,26 @@
       justify-content: space-between;
       padding: 12px 14px;
       border-radius: 8px;
-      background: #f8f8fb;
+      background: var(--item-bg);
       margin-bottom: 10px;
       transition: background 0.15s;
       gap: 12px;
     }
 
     #todo-list li:hover {
-      background: #efefff;
+      background: var(--item-hover-bg);
     }
 
     .todo-text {
       flex: 1;
       font-size: 1rem;
-      color: #333;
+      color: var(--text);
       word-break: break-word;
     }
 
     .todo-text.done {
       text-decoration: line-through;
-      color: #aaa;
+      color: var(--text-done);
     }
 
     .complete-btn {
@@ -140,12 +202,12 @@
     }
 
     .delete-btn:hover {
-      background: #fde8e8;
+      background: var(--delete-hover-bg);
     }
 
     .empty-msg {
       text-align: center;
-      color: #bbb;
+      color: var(--empty-color);
       font-size: 0.95rem;
       padding: 20px 0;
     }
@@ -153,7 +215,10 @@
 </head>
 <body>
   <div class="container">
-    <h1>My Todos</h1>
+    <div class="header">
+      <h1>My Todos</h1>
+      <button id="theme-toggle" title="Switch to dark mode" aria-label="Switch to dark mode">🌙</button>
+    </div>
     <div class="input-row">
       <input
         type="text"
@@ -173,6 +238,28 @@
     const addBtn = document.getElementById('add-btn');
     const list = document.getElementById('todo-list');
     const emptyMsg = document.getElementById('empty-msg');
+    const themeToggle = document.getElementById('theme-toggle');
+
+    // --- Theme toggle ---
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+      themeToggle.title = label;
+      themeToggle.setAttribute('aria-label', label);
+    }
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      localStorage.setItem('theme', next);
+    });
+
+    // --- Todo logic ---
 
     function updateEmptyMessage() {
       emptyMsg.style.display = list.children.length === 0 ? 'block' : 'none';
